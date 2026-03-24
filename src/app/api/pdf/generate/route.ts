@@ -34,6 +34,7 @@ function dbToProposal(db: DbProposal): Proposal {
     scopeCounts: db.scope_counts,
     projectPrice: db.project_price,
     budgetRange: db.budget_range,
+    timeline: "",
     desiredStartDate: "",
     financing: db.financing as Proposal["financing"],
     allowances: db.allowances,

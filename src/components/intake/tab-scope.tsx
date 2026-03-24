@@ -1,13 +1,21 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronDown, ChevronRight, Hammer, ClipboardList } from "lucide-react";
-import { PROJECT_TYPES } from "@/lib/types";
+import { PROJECT_TYPES, FINISH_OPTIONS } from "@/lib/types";
 import type { ProposalFormReturn } from "@/hooks/use-proposal-form";
 
 interface TabScopeProps {
@@ -16,11 +24,35 @@ interface TabScopeProps {
 
 export function TabScope({ form }: TabScopeProps) {
   const { state, toggleProjectType, toggleScopeItem, setField } = form;
-  const [expandedDescs, setExpandedDescs] = useState<Record<string, boolean>>({});
+  const [expandedDescs, setExpandedDescs] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const toggleDesc = useCallback((itemKey: string) => {
     setExpandedDescs((prev) => ({ ...prev, [itemKey]: !prev[itemKey] }));
   }, []);
+
+  // Auto-check std items when a project type is first selected
+  const [autoCheckedTypes, setAutoCheckedTypes] = useState<Set<string>>(
+    new Set()
+  );
+
+  useEffect(() => {
+    for (const ptId of state.projectTypes) {
+      if (autoCheckedTypes.has(ptId)) continue;
+      const ptDef = PROJECT_TYPES.find((p) => p.id === ptId);
+      if (!ptDef) continue;
+      for (const item of ptDef.items) {
+        if (item.std) {
+          const scopeKey = `${ptId}::${item.id}`;
+          if (!state.scopeItems[scopeKey]) {
+            toggleScopeItem(scopeKey);
+          }
+        }
+      }
+      setAutoCheckedTypes((prev) => new Set(prev).add(ptId));
+    }
+  }, [state.projectTypes, autoCheckedTypes, toggleScopeItem, state.scopeItems]);
 
   const selectedTypes = PROJECT_TYPES.filter((pt) =>
     state.projectTypes.includes(pt.id)
@@ -67,7 +99,7 @@ export function TabScope({ form }: TabScopeProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="size-4" />
-              {pt.label} — Scope Items
+              {pt.label} -- Scope Items
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -77,6 +109,10 @@ export function TabScope({ form }: TabScopeProps) {
                 const isChecked = state.scopeItems[scopeKey] ?? false;
                 const isExpanded = expandedDescs[scopeKey] ?? false;
                 const descOverride = state.descOverrides[scopeKey];
+                const descText = descOverride ?? item.description;
+                const descBullets = descText
+                  .split("\n")
+                  .filter((l) => l.trim());
 
                 return (
                   <div
@@ -100,6 +136,22 @@ export function TabScope({ form }: TabScopeProps) {
                         <span className="text-sm font-medium">
                           {item.title}
                         </span>
+                        {item.std && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-1 text-[10px] bg-green-500/15 text-green-600 border-green-500/30"
+                          >
+                            Standard
+                          </Badge>
+                        )}
+                        {item.opt && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-1 text-[10px] bg-amber-500/15 text-amber-600 border-amber-500/30"
+                          >
+                            Optional
+                          </Badge>
+                        )}
                         {isExpanded ? (
                           <ChevronDown className="size-3.5 text-muted-foreground" />
                         ) : (
@@ -107,8 +159,92 @@ export function TabScope({ form }: TabScopeProps) {
                         )}
                       </button>
                     </div>
+
+                    {/* Finish selection dropdowns */}
+                    {isChecked && item.finishKey && FINISH_OPTIONS[item.finishKey] && (
+                      <div className="mt-2 pl-7">
+                        <div className="flex items-center gap-2">
+                          <Label className="text-xs text-muted-foreground whitespace-nowrap">
+                            Finish:
+                          </Label>
+                          <Select
+                            value={state.finishSelections[scopeKey] ?? ""}
+                            onValueChange={(val) =>
+                              setField("finishSelections", {
+                                ...state.finishSelections,
+                                [scopeKey]: val,
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder="Select finish..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FINISH_OPTIONS[item.finishKey].map((opt) => (
+                                <SelectItem key={opt} value={opt}>
+                                  {opt}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    )}
+                    {isChecked &&
+                      item.finishKey2 &&
+                      FINISH_OPTIONS[item.finishKey2] && (
+                        <div className="mt-1 pl-7">
+                          <div className="flex items-center gap-2">
+                            <Label className="text-xs text-muted-foreground whitespace-nowrap">
+                              {item.finishKey2 === "drywall_texture"
+                                ? "Texture:"
+                                : item.finishKey2 === "vanity"
+                                  ? "Vanity:"
+                                  : "Option:"}
+                            </Label>
+                            <Select
+                              value={
+                                state.finishSelections[
+                                  `${scopeKey}__2`
+                                ] ?? ""
+                              }
+                              onValueChange={(val) =>
+                                setField("finishSelections", {
+                                  ...state.finishSelections,
+                                  [`${scopeKey}__2`]: val,
+                                })
+                              }
+                            >
+                              <SelectTrigger className="h-8 text-xs">
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FINISH_OPTIONS[item.finishKey2].map((opt) => (
+                                  <SelectItem key={opt} value={opt}>
+                                    {opt}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Description bullets / editable textarea */}
                     {isExpanded && (
-                      <div className="mt-3 pl-7">
+                      <div className="mt-3 pl-7 space-y-2">
+                        {descBullets.length > 0 && (
+                          <ul className="list-disc pl-4 space-y-0.5">
+                            {descBullets.map((line, li) => (
+                              <li
+                                key={li}
+                                className="text-xs text-muted-foreground leading-relaxed"
+                              >
+                                {line}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                         <Textarea
                           value={descOverride ?? item.description}
                           onChange={(e) =>

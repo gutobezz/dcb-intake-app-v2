@@ -15,8 +15,15 @@ import { Home, MapPin } from "lucide-react";
 import { FloorPlanUploader } from "@/components/intake/floor-plan-uploader";
 import type { ProposalFormReturn } from "@/hooks/use-proposal-form";
 
-const PROPERTY_TYPES = ["SFR", "Condo", "Multi-Family", "Commercial"] as const;
-const STORIES = ["1", "2", "3+"] as const;
+const PROPERTY_TYPES = [
+  "Single Family",
+  "Condo / Townhome",
+  "Multi-Family",
+  "Commercial",
+  "Vacant Lot",
+  "Other",
+] as const;
+const STORIES = ["1", "1.5", "2", "2.5", "3+"] as const;
 
 interface TabPropertyProps {
   form: ProposalFormReturn;

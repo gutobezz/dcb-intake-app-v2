@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,8 @@ import {
   Sun,
   Droplets,
   Snowflake,
+  Clock,
+  Tag,
 } from "lucide-react";
 import {
   ADVISORS,
@@ -42,9 +45,18 @@ import {
   type Allowance,
   type PaymentMilestone,
 } from "@/lib/types";
+import {
+  BUDGET_RANGES,
+  TIMELINE_OPTIONS,
+  FINANCING_OPTIONS,
+  DEFAULT_NOTES_TAGS,
+  FOLLOWUP_OPTIONS,
+} from "@/lib/constants/advisors";
+import {
+  DEFAULT_ALLOWANCES,
+  ALLOWANCE_ELIGIBLE_PROJECT_TYPES,
+} from "@/lib/constants/default-allowances";
 import type { ProposalFormReturn } from "@/hooks/use-proposal-form";
-
-const FINANCING_TYPES = ["Cash", "Loan", "HELOC", "Other"] as const;
 
 const LEAD_SCORE_OPTIONS: {
   value: LeadScore;
@@ -62,6 +74,33 @@ interface TabDetailsProps {
 
 export function TabDetails({ form }: TabDetailsProps) {
   const { state, setField, dispatch, togglePriority, toggleSalesperson } = form;
+  const hasAutoPopulated = useRef(false);
+
+  // Auto-populate allowances when eligible project types are selected
+  const hasEligibleType = useMemo(
+    () =>
+      state.projectTypes.some((pt) =>
+        (ALLOWANCE_ELIGIBLE_PROJECT_TYPES as readonly string[]).includes(pt)
+      ),
+    [state.projectTypes]
+  );
+
+  useEffect(() => {
+    if (hasEligibleType && state.allowances.length === 0 && !hasAutoPopulated.current) {
+      hasAutoPopulated.current = true;
+      const allowances = DEFAULT_ALLOWANCES.map((a) => ({
+        description: a.label,
+        amount: a.amount,
+      }));
+      setField("allowances", allowances);
+    }
+  }, [hasEligibleType, state.allowances.length, setField]);
+
+  // Compute payment schedule percentage total
+  const percentTotal = state.paymentSchedule.reduce(
+    (sum, p) => sum + (parseFloat(p.percentage) || 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -96,16 +135,46 @@ export function TabDetails({ form }: TabDetailsProps) {
                   Internal
                 </Badge>
               </Label>
-              <Input
-                id="budgetRange"
-                placeholder="$120k - $180k"
+              <Select
                 value={state.budgetRange}
-                onChange={(e) => setField("budgetRange", e.target.value)}
-              />
+                onValueChange={(val) => setField("budgetRange", val)}
+              >
+                <SelectTrigger id="budgetRange" className="w-full">
+                  <SelectValue placeholder="Select budget range" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BUDGET_RANGES.map((range) => (
+                    <SelectItem key={range} value={range}>
+                      {range}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label>
+                <Clock className="mr-1 inline size-3.5" />
+                Timeline
+              </Label>
+              <Select
+                value={state.timeline}
+                onValueChange={(val) => setField("timeline", val)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select timeline" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMELINE_OPTIONS.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="desiredStartDate">
                 <Calendar className="mr-1 inline size-3.5" />
@@ -131,7 +200,7 @@ export function TabDetails({ form }: TabDetailsProps) {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {FINANCING_TYPES.map((f) => (
+                  {FINANCING_OPTIONS.map((f) => (
                     <SelectItem key={f} value={f}>
                       {f}
                     </SelectItem>
@@ -162,6 +231,10 @@ export function TabDetails({ form }: TabDetailsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
+            Allowance amounts included within the project price for
+            client-selected materials/fixtures.
+          </div>
           {state.allowances.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No allowances yet. Click Add to create one.
@@ -191,18 +264,19 @@ export function TabDetails({ form }: TabDetailsProps) {
                         }
                       />
                     </div>
-                    <div className="w-[140px] space-y-1">
+                    <div className="w-[160px] space-y-1">
                       <Label className="text-xs text-muted-foreground">
                         Amount
                       </Label>
-                      <PriceInput
+                      <Input
+                        placeholder="e.g. Up to $5/sqft"
                         value={state.allowances[index].amount}
-                        onChange={(val) =>
+                        onChange={(e) =>
                           dispatch({
                             type: "UPDATE_ALLOWANCE",
                             index,
                             field: "amount",
-                            value: val,
+                            value: e.target.value,
                           })
                         }
                       />
@@ -233,86 +307,141 @@ export function TabDetails({ form }: TabDetailsProps) {
               <CreditCard className="size-4" />
               Payment Schedule
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => dispatch({ type: "ADD_PAYMENT_MILESTONE" })}
-            >
-              <Plus className="size-3.5" />
-              Add
-            </Button>
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-xs font-bold ${
+                  percentTotal === 100
+                    ? "text-green-500"
+                    : percentTotal > 100
+                      ? "text-red-500"
+                      : "text-amber-500"
+                }`}
+              >
+                Total: {percentTotal}%
+                {percentTotal !== 100 &&
+                  (percentTotal < 100
+                    ? ` (need ${100 - percentTotal}% more)`
+                    : ` (${percentTotal - 100}% over)`)}
+                {percentTotal === 100 && " OK"}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => dispatch({ type: "ADD_PAYMENT_MILESTONE" })}
+              >
+                <Plus className="size-3.5" />
+                Add
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {state.paymentSchedule.map((_: PaymentMilestone, index: number) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 rounded-lg border border-border/50 p-3"
-              >
-                <div className="flex flex-1 flex-wrap gap-3">
-                  <div className="min-w-[140px] flex-1 space-y-1">
-                    <Label className="text-xs text-muted-foreground">
-                      Milestone
-                    </Label>
-                    <Input
-                      placeholder="e.g. Down Payment"
-                      value={state.paymentSchedule[index].milestone}
-                      onChange={(e) =>
-                        dispatch({
-                          type: "UPDATE_PAYMENT_MILESTONE",
-                          index,
-                          field: "milestone",
-                          value: e.target.value,
-                        })
+            {state.paymentSchedule.map(
+              (pm: PaymentMilestone, index: number) => {
+                const price = parseFloat(
+                  String(state.projectPrice).replace(/[^0-9.]/g, "")
+                );
+                const computedAmt =
+                  pm.fixed && pm.amount
+                    ? pm.amount
+                    : price && pm.percentage
+                      ? `$${Math.round(
+                          (price * parseFloat(pm.percentage)) / 100
+                        ).toLocaleString()}`
+                      : pm.percentage
+                        ? `${pm.percentage}%`
+                        : "";
+
+                return (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 rounded-lg border border-border/50 p-3"
+                  >
+                    <div className="flex flex-1 flex-wrap gap-3">
+                      <div className="min-w-[180px] flex-1 space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          Milestone
+                        </Label>
+                        <Input
+                          placeholder="e.g. Upon Framing Complete"
+                          value={pm.milestone}
+                          onChange={(e) =>
+                            dispatch({
+                              type: "UPDATE_PAYMENT_MILESTONE",
+                              index,
+                              field: "milestone",
+                              value: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-[80px] space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          %
+                        </Label>
+                        <Input
+                          type="number"
+                          placeholder="10"
+                          value={pm.percentage}
+                          disabled={pm.fixed}
+                          onChange={(e) =>
+                            dispatch({
+                              type: "UPDATE_PAYMENT_MILESTONE",
+                              index,
+                              field: "percentage",
+                              value: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="w-[120px] space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          Amount
+                        </Label>
+                        {pm.fixed ? (
+                          <Input
+                            value={pm.amount}
+                            onChange={(e) =>
+                              dispatch({
+                                type: "UPDATE_PAYMENT_MILESTONE",
+                                index,
+                                field: "amount",
+                                value: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          <Input
+                            value={computedAmt}
+                            disabled
+                            className="text-muted-foreground"
+                          />
+                        )}
+                      </div>
+                      {pm.fixed && (
+                        <Badge
+                          variant="outline"
+                          className="mt-6 text-[10px] bg-blue-500/10 text-blue-500 border-blue-500/30"
+                        >
+                          Fixed
+                        </Badge>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="mt-5 text-muted-foreground hover:text-destructive"
+                      onClick={() =>
+                        dispatch({ type: "REMOVE_PAYMENT_MILESTONE", index })
                       }
-                    />
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
                   </div>
-                  <div className="w-[120px] space-y-1">
-                    <Label className="text-xs text-muted-foreground">
-                      Amount
-                    </Label>
-                    <PriceInput
-                      value={state.paymentSchedule[index].amount}
-                      onChange={(val) =>
-                        dispatch({
-                          type: "UPDATE_PAYMENT_MILESTONE",
-                          index,
-                          field: "amount",
-                          value: val,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="w-[80px] space-y-1">
-                    <Label className="text-xs text-muted-foreground">%</Label>
-                    <Input
-                      type="number"
-                      placeholder="25"
-                      value={state.paymentSchedule[index].percentage}
-                      onChange={(e) =>
-                        dispatch({
-                          type: "UPDATE_PAYMENT_MILESTONE",
-                          index,
-                          field: "percentage",
-                          value: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="mt-5 text-muted-foreground hover:text-destructive"
-                  onClick={() =>
-                    dispatch({ type: "REMOVE_PAYMENT_MILESTONE", index })
-                  }
-                >
-                  <Trash2 className="size-3.5" />
-                </Button>
-              </div>
-            ))}
+                );
+              }
+            )}
           </div>
         </CardContent>
       </Card>
@@ -397,12 +526,21 @@ export function TabDetails({ form }: TabDetailsProps) {
               </div>
               {state.followUp && (
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    className="w-20"
+                  <Select
                     value={state.followUpDays}
-                    onChange={(e) => setField("followUpDays", e.target.value)}
-                  />
+                    onValueChange={(val) => setField("followUpDays", val)}
+                  >
+                    <SelectTrigger className="w-20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FOLLOWUP_OPTIONS.map((d) => (
+                        <SelectItem key={d} value={d}>
+                          {d}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <span className="text-sm text-muted-foreground">days</span>
                 </div>
               )}
@@ -462,21 +600,34 @@ export function TabDetails({ form }: TabDetailsProps) {
               className="min-h-[100px]"
             />
             <div className="space-y-2">
-              <Label htmlFor="tags">Tags (comma separated)</Label>
-              <Input
-                id="tags"
-                placeholder="vip, realm, rush, luxury"
-                value={state.notesTags.join(", ")}
-                onChange={(e) =>
-                  dispatch({
-                    type: "SET_NOTES_TAGS",
-                    tags: e.target.value
-                      .split(",")
-                      .map((t) => t.trim())
-                      .filter(Boolean),
-                  })
-                }
-              />
+              <Label className="flex items-center gap-1.5">
+                <Tag className="size-3.5" />
+                Quick Tags
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {DEFAULT_NOTES_TAGS.map((tag) => {
+                  const isSelected = state.notesTags.includes(tag);
+                  return (
+                    <button
+                      type="button"
+                      key={tag}
+                      onClick={() => {
+                        const newTags = isSelected
+                          ? state.notesTags.filter((t) => t !== tag)
+                          : [...state.notesTags, tag];
+                        dispatch({ type: "SET_NOTES_TAGS", tags: newTags });
+                      }}
+                      className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                        isSelected
+                          ? "border-primary/50 bg-primary/10 text-foreground"
+                          : "border-border text-muted-foreground hover:border-muted-foreground/30"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </CardContent>
