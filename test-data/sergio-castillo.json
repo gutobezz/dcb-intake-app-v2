@@ -1,0 +1,106 @@
+{
+  "client": {
+    "firstName": "Sergio",
+    "lastName": "Castillo",
+    "email": "",
+    "phone": "",
+    "referralSource": "",
+    "advisor": ""
+  },
+  "property": {
+    "address": "11263 Stonecress Ave, Fountain Valley, CA, 92708",
+    "propertyType": "SFR",
+    "yearBuilt": null,
+    "sqft": null,
+    "bedrooms": null,
+    "bathrooms": null,
+    "stories": "1",
+    "hoa": false,
+    "hasPlans": true
+  },
+  "scope": {
+    "projectTypes": ["addition_1st", "interior_remodel", "kitchen_remodel"],
+    "sections": [
+      {
+        "title": "Design, Architectural & Engineering",
+        "items": [
+          "Conduct multiple in-depth meetings with the client to fully understand their design preferences, lifestyle needs, and aesthetic goals",
+          "Discuss design styles (e.g., modern, contemporary, craftsman, etc.)",
+          "Explore functional priorities (e.g., flow of spaces, natural light, use of materials)",
+          "Company will allow time for multiple rounds of feedback, revisions, and updates to the plans based on client preferences and functional needs",
+          "Develop detailed architectural plans: Floor plans, Elevations, Sections, Construction Documents",
+          "Permit Acquisition: Assistance in the permit acquisition process",
+          "Work with a structural engineer and develop structural plans",
+          "Determine the required changes or reinforcements for removing or altering load-bearing walls in the kitchen and living room areas",
+          "Create detailed framing plans to ensure the foundation, beams, and supports meet the engineering requirements",
+          "Develop a mood board or design inspiration board based on the client's preferences",
+          "Collaborate on initial space planning concepts, laying out potential floor plans and room adjacencies"
+        ]
+      },
+      {
+        "title": "1st Story Addition & Interior Remodel",
+        "items": [
+          "Site Preparation & Demo: Cover work areas, provide portable toilet, demo interior walls/flooring/chimney/kitchen/fixtures, remove existing pavers, remove and haul away all demo debris",
+          "Foundation: Install necessary electrical stub-outs, form new foundation, install rebars, pour concrete foundation, allow curing time, pass all foundation inspection",
+          "Framing: Frame new walls, frame new door openings, install new structural supports/headers/shear walls/beams, pass framing inspection",
+          "Plumbing Rough In: Run new water supply and drain lines for sinks, toilet for powder room, and any other fixtures. Provide new tankless water heater",
+          "Plumbing Finishing: Install final plumbing fixtures, faucets, toilet, and sinks. Test water pressure and drainage. Pass rough plumbing inspection",
+          "Electrical Rough In: Install new electrical wiring, install/upgrade new 200AMP per plans, position outlets/light fixtures/switches, ensure wiring is up to code, pass rough electrical inspection",
+          "Electrical Finishing: Install standard LED recessed lights, install outlets as needed, install new switches, all new outlets and switches to be standard white decor, install water rated led recessed light in powder room, install ceiling exhaust fan above toilet in powder room",
+          "Roofing: Install new roof sheathing for front new addition area, install new waterproofing underlayment, install 30 lbs tar paper and cool roof composition shingles, install new metal flashing on all new pipes and vents",
+          "Insulation, Drywall & Paint: Install standard insulation in walls and above ceiling per title 24 plan, install drywall on all walls and ceiling, tape and mud all joints (level 3), apply primer and two coats of paint. Standard Dunn Edwards / Benjamin Moore paint included",
+          "Windows & Exterior Doors: Flash and seal windows and exterior doors, install new exterior doors and hardware, install new vinyl windows per title 24",
+          "Exterior Finish & Re-stucco: Install waterproof tar paper and chicken wire around new windows and exterior doors, install metal lath over moisture barrier, scratch coat and brown coat all new walls, apply Santa Barbara finish or smooth stucco, pressure wash and re-stucco existing house",
+          "Flooring: Demo existing flooring, install LVP floors all throughout the house, provide and install MDF baseboards",
+          "Interior Doors & Windows: Install new interior doors, door hardware, and baseboards, apply trim around windows and doors, install new exterior and interior doors",
+          "Powder Room: Install tile in the new powder room area (client to provide tile), install new vanity (customer to provide), hook up plumbing fixtures",
+          "HVAC/Ducting Work: Ensure all gas lines are pressure tested, run new ductings all throughout the new addition area, company will not replace existing HVAC unit",
+          "Final Cleanup and Punch List: Conduct detailed cleanup of all construction areas, perform final walkthrough with client, complete all final touch-ups"
+        ]
+      },
+      {
+        "title": "Kitchen & Electric Fireplace",
+        "items": [
+          "Kitchen 3D Design: Company will provide a 3D design prior to starting any work, client has up to 3 revisions, company will provide in-person samples when finalizing colors",
+          "Prefabricated Cabinets installation, material and labor: Purchasing, building and installing prefab cabinets according to agreed upon layout, adding fillers and panels where needed, installing all soft closing hardware and handles. Customer to choose from company's shaker options",
+          "Prefabricated Countertops, installation labor and material: Fabrication of pre fab quartz counter tops, fabricate under-mount sink, fabricate new layout core up to 5 holes in the counter-sink area. Material is prefab quartz, customer to choose from company's options",
+          "Backsplash: Demo current tiles, drywall and prepare area, install standard tiles in the backsplash area. Full slab backsplash will be additional cost",
+          "Paint The Kitchen: Prepare and cover all work area, match current texture, lay one coat of primer, lay two coats of paint, clean up area",
+          "Electric Fireplace: Company will run necessary electric for the new electric fireplace, customer to provide the fireplace fixtures"
+        ]
+      }
+    ]
+  },
+  "pricing": {
+    "projectPrice": "$298,800",
+    "budgetRange": "",
+    "financing": ""
+  },
+  "paymentSchedule": [
+    { "milestone": "Down payment", "amount": "$1,000" },
+    { "milestone": "Mobilization & Start Architectural Design", "amount": "$10,500" },
+    { "milestone": "Upon plans approval", "amount": "$6,000" },
+    { "milestone": "Site Prep & Start Demo", "amount": "$25,000" },
+    { "milestone": "Upon Start Foundation Work", "amount": "$25,000" },
+    { "milestone": "Upon Foundation Inspection", "amount": "$15,000" },
+    { "milestone": "Pass framing Inspection", "amount": "$30,000" },
+    { "milestone": "Upon Start Rough MEP", "amount": "$36,000" },
+    { "milestone": "Pass rough MEP", "amount": "$20,000" },
+    { "milestone": "Upon Start Drywall Work", "amount": "$16,000" },
+    { "milestone": "Upon Start Exterior Lath", "amount": "$15,000" },
+    { "milestone": "Upon finish cabinets installation and start countertop fabrication", "amount": "$22,700" },
+    { "milestone": "Upon pass lath & insulation inspection", "amount": "$15,000" },
+    { "milestone": "Upon Finish Stucco", "amount": "$20,000" },
+    { "milestone": "Upon Start Roofing For addition", "amount": "$14,000" },
+    { "milestone": "Upon Pass Final Inspection", "amount": "$21,100" },
+    { "milestone": "Upon Completion final touch ups", "amount": "$6,500" }
+  ],
+  "allowances": [
+    { "description": "SPC/Vinyl flooring", "amount": "Up to $3/sqft" },
+    { "description": "Tile installation in backsplash kitchen", "amount": "Up to $5/sqft" },
+    { "description": "Tile installation in the powder room", "amount": "Up to $5/sqft" },
+    { "description": "Windows", "amount": "Up to $300 per window" },
+    { "description": "Tankless water heater", "amount": "Up to $1,700" }
+  ],
+  "proposalDate": "February 2026"
+}
