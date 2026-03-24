@@ -1,0 +1,37 @@
+/**
+ * 31 standard legal/operational notes that appear on every DCB proposal.
+ * These match the "General Notes & Conditions" page of the branded PDF.
+ */
+export const DEFAULT_GENERAL_NOTES: string[] = [
+  "All work to be performed per plans and specifications approved by the local building department.",
+  "Owner is responsible for obtaining all necessary permits unless otherwise stated in this proposal.",
+  "Contractor is not responsible for pre-existing conditions not visible at the time of estimate, including but not limited to mold, asbestos, termite damage, dry rot, or faulty wiring.",
+  "Any changes to the scope of work after contract signing will require a written change order and may affect the project timeline and cost.",
+  "Payment schedule is as outlined in this proposal. Late payments may result in work stoppage and/or additional fees.",
+  "Contractor carries General Liability and Workers' Compensation insurance. Certificates are available upon request.",
+  "Owner is responsible for securing and protecting personal belongings, furniture, and valuables in the work area prior to commencement.",
+  "Work hours are Monday through Friday, 7:00 AM to 5:00 PM, unless otherwise agreed upon in writing.",
+  "Contractor is not responsible for color or shade variations in materials including but not limited to paint, tile, stone, and wood.",
+  "Allowances listed are maximum amounts. Any selections exceeding the allowance will be billed to the owner as a change order.",
+  "This proposal is valid for 30 days from the date of issue. After 30 days, pricing may be subject to change.",
+  "Contractor reserves the right to substitute materials of equal or greater quality if specified materials are unavailable.",
+  "Any delays caused by owner decisions, material availability, weather, or permitting are not the responsibility of the contractor and may extend the project timeline.",
+  "Dumpster and debris removal are included unless otherwise noted. Owner shall provide adequate access for dumpster placement.",
+  "Contractor is not responsible for damage to existing landscaping, driveways, or walkways caused by necessary construction access.",
+  "All warranties are as provided by the manufacturer of materials and equipment installed. Contractor provides a one-year warranty on workmanship.",
+  "Utilities (water, electricity, gas) must be available and in working order at the job site for the duration of the project.",
+  "Owner must maintain clear and safe access to the work area for all construction personnel and equipment.",
+  "Hazardous material testing (asbestos, lead paint) is not included unless specifically stated. If discovered during construction, remediation will be handled as a change order.",
+  "Structural engineering, soils reports, and/or geological surveys are not included unless specifically noted in the scope of work.",
+  "Contractor is not responsible for matching existing finishes (paint, texture, flooring) in areas not included in the scope of work.",
+  "Temporary facilities (portable restrooms, temporary power) are not included unless specifically noted.",
+  "Owner agrees to provide parking access for contractor vehicles and equipment within reasonable proximity to the job site.",
+  "Final clean-up includes broom-clean conditions. Deep cleaning or move-in cleaning services are not included.",
+  "All electrical and plumbing work will be performed by licensed subcontractors and will pass required inspections.",
+  "Contractor is not liable for delays or damages resulting from acts of God, natural disasters, pandemics, or government-mandated shutdowns.",
+  "Design selections (tile, cabinetry, countertops, fixtures, etc.) must be finalized prior to the scheduled installation date. Delays in selections may delay the project.",
+  "Owner acknowledges that remodeling in occupied homes may involve noise, dust, and temporary loss of utility services.",
+  "Any work not explicitly included in this proposal is excluded from the scope and cost.",
+  "This proposal, along with the signed contract, constitutes the entire agreement between the owner and contractor.",
+  "California law requires that contractors be licensed by the Contractors' State License Board. D&C Builders holds CSLB License #1116111.",
+];
