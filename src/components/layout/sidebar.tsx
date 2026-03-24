@@ -31,11 +31,13 @@ const navItems = [
     label: "Pipeline",
     href: "/library",
     icon: Library,
+    hideOnIntake: true,
   },
   {
     label: "Change Orders",
     href: "/change-orders",
     icon: FileText,
+    hideOnIntake: true,
   },
   {
     label: "Settings",
@@ -104,7 +106,13 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex flex-1 flex-col gap-1 p-2">
-        {navItems.map((item) => {
+        {navItems.filter((item) => {
+          // Hide Pipeline and Change Orders when on the intake page (they're tabs now)
+          if (item.hideOnIntake && (pathname === "/intake" || pathname.startsWith("/intake/"))) {
+            return false;
+          }
+          return true;
+        }).map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;

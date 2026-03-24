@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,27 +11,26 @@ import { TabProperty } from "./tab-property";
 import { TabScope } from "./tab-scope";
 import { TabDetails } from "./tab-details";
 import { TabReview } from "./tab-review";
+import { TabLibrary } from "./tab-library";
+import { TabChangeOrder } from "./tab-change-order";
 import type { Proposal } from "@/lib/types";
 import {
-  User,
-  Home,
-  Hammer,
-  Settings2,
-  FileCheck,
   ChevronLeft,
   ChevronRight,
   Loader2,
   Check,
 } from "lucide-react";
 
-const TAB_IDS = ["client", "property", "scope", "details", "review"] as const;
+const TAB_IDS = ["client", "property", "scope", "details", "review", "library", "change-order"] as const;
 
 const TAB_CONFIG = [
-  { id: "client" as const, label: "Client", icon: User },
-  { id: "property" as const, label: "Property", icon: Home },
-  { id: "scope" as const, label: "Scope", icon: Hammer },
-  { id: "details" as const, label: "Details", icon: Settings2 },
-  { id: "review" as const, label: "Review", icon: FileCheck },
+  { id: "client" as const, label: "Client", emoji: "\u{1F464}" },
+  { id: "property" as const, label: "Property", emoji: "\u{1F4CD}" },
+  { id: "scope" as const, label: "Scope", emoji: "\u{1F4E6}" },
+  { id: "details" as const, label: "Details", emoji: "\u{1F4DD}" },
+  { id: "review" as const, label: "Review", emoji: "\u2705" },
+  { id: "library" as const, label: "Library", emoji: "\u{1F4DA}" },
+  { id: "change-order" as const, label: "Change Order", emoji: "\u{1F4CB}" },
 ];
 
 interface IntakeFormProps {
@@ -43,6 +42,11 @@ export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
   const form = useProposalForm(initialData);
   const { isSaving, lastSaved } = useAutosave(form.state, proposalId);
   const [activeTab, setActiveTab] = useState(0);
+
+  // Count selected scope items
+  const scopeCount = useMemo(() => {
+    return Object.values(form.state.scopeItems).filter(Boolean).length;
+  }, [form.state.scopeItems]);
 
   const currentTabId = TAB_IDS[activeTab];
   const isFirst = activeTab === 0;
@@ -94,10 +98,29 @@ export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
             <TabsTrigger
               key={tab.id}
               value={index}
-              className="gap-1.5 px-3"
+              className="gap-1 px-2.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm"
             >
-              <tab.icon className="size-3.5" />
-              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="text-base leading-none">{tab.emoji}</span>
+              <span className="hidden sm:inline">
+                {tab.label}
+                {tab.id === "scope" && scopeCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="ml-1.5 h-4 min-w-[18px] bg-amber-500/20 px-1 text-[10px] text-amber-400"
+                  >
+                    {scopeCount}
+                  </Badge>
+                )}
+              </span>
+              {/* Mobile: show scope count after emoji */}
+              {tab.id === "scope" && scopeCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="h-4 min-w-[18px] bg-amber-500/20 px-1 text-[10px] text-amber-400 sm:hidden"
+                >
+                  {scopeCount}
+                </Badge>
+              )}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -117,6 +140,12 @@ export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
           </TabsContent>
           <TabsContent value={4}>
             <TabReview form={form} />
+          </TabsContent>
+          <TabsContent value={5}>
+            <TabLibrary />
+          </TabsContent>
+          <TabsContent value={6}>
+            <TabChangeOrder />
           </TabsContent>
         </div>
       </Tabs>
