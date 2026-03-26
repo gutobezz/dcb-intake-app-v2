@@ -8,10 +8,10 @@ You are parsing text extracted from a previous D&C Builders proposal PDF. Your j
 Return your analysis as a JSON object with exactly this structure (no markdown, no code fences, just raw JSON):
 
 {
-  "client_first_name": "<first name or empty string>",
-  "client_last_name": "<last name or empty string>",
-  "client_email": "<email if found, or empty string>",
-  "client_phone": "<phone if found, or empty string>",
+  "first_name": "<first name or empty string>",
+  "last_name": "<last name or empty string>",
+  "email": "<email if found, or empty string>",
+  "phone": "<phone if found, or empty string>",
   "address": "<property address or empty string>",
   "project_price": "<total project price as shown, e.g. '$185,000', or empty string>",
   "project_types": [<list of scope type IDs that match the proposal content, from: "interior_remodel", "kitchen_remodel", "bathroom_remodel", "new_bathroom", "addition_1st", "addition_2nd", "adu_jadu", "garage_conv", "garage_conv_1st", "garage_conv_2nd", "interior_per_bedroom", "new_construction", "roofing", "exterior_siding", "flooring", "painting", "windows_doors", "deck_patio", "sunroom">],

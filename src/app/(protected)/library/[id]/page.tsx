@@ -52,7 +52,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   const p = proposal as DbProposal;
 
   const clientName =
-    `${p.client_first_name} ${p.client_last_name}`.trim() || "Unnamed Client";
+    `${p.first_name} ${p.last_name}`.trim() || "Unnamed Client";
 
   const price = p.project_price ? formatPrice(p.project_price) : "--";
   const createdDate = p.created_at ? formatDate(p.created_at) : "--";
@@ -123,14 +123,14 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                   <span className="text-xs text-muted-foreground">Email</span>
                   <p className="flex items-center gap-1 font-medium">
                     <Mail className="size-3 text-muted-foreground" />
-                    {p.client_email || "--"}
+                    {p.email || "--"}
                   </p>
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground">Phone</span>
                   <p className="flex items-center gap-1 font-medium">
                     <Phone className="size-3 text-muted-foreground" />
-                    {p.client_phone ? formatPhone(p.client_phone) : "--"}
+                    {p.phone ? formatPhone(p.phone) : "--"}
                   </p>
                 </div>
                 <div>

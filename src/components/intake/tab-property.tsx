@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -11,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Home, MapPin } from "lucide-react";
+import { Home, MapPin, FileText } from "lucide-react";
 import { FloorPlanUploader } from "@/components/intake/floor-plan-uploader";
 import type { ProposalFormReturn } from "@/hooks/use-proposal-form";
 
@@ -146,7 +147,7 @@ export function TabProperty({ form }: TabPropertyProps) {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex items-center gap-3">
               <Switch
                 checked={state.hoa}
@@ -159,13 +160,70 @@ export function TabProperty({ form }: TabPropertyProps) {
                 checked={state.hasPlans}
                 onCheckedChange={(checked) => setField("hasPlans", checked)}
               />
-              <Label>Has Plans / RTI</Label>
+              <Label>Has Plans</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={state.rti}
+                onCheckedChange={(checked) => setField("rti", checked)}
+              />
+              <Label>RTI (Ready to Issue)</Label>
             </div>
           </div>
         </CardContent>
       </Card>
 
       <FloorPlanUploader form={form} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="size-4" />
+            Property Valuation & Notes
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="lotSize">Lot Size</Label>
+              <Input
+                id="lotSize"
+                placeholder="e.g. 6,500 sqft"
+                value={state.lotSize}
+                onChange={(e) => setField("lotSize", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="estimatedValue">Estimated Value</Label>
+              <Input
+                id="estimatedValue"
+                placeholder="e.g. $850,000"
+                value={state.estimatedValue}
+                onChange={(e) => setField("estimatedValue", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastSoldPrice">Last Sold Price</Label>
+              <Input
+                id="lastSoldPrice"
+                placeholder="e.g. $720,000"
+                value={state.lastSoldPrice}
+                onChange={(e) => setField("lastSoldPrice", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="mt-4 space-y-2">
+            <Label htmlFor="conditionNotes">Condition Notes</Label>
+            <Textarea
+              id="conditionNotes"
+              placeholder="Property condition, observations, scope description from calendar event..."
+              value={state.conditionNotes}
+              onChange={(e) => setField("conditionNotes", e.target.value)}
+              className="min-h-[80px]"
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

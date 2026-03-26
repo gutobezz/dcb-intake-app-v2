@@ -177,7 +177,7 @@ export function ChangeOrderForm({
               <SelectContent>
                 {proposals.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.client_first_name} {p.client_last_name} &mdash;{" "}
+                    {p.first_name} {p.last_name} &mdash;{" "}
                     {p.address || "No address"}
                   </SelectItem>
                 ))}

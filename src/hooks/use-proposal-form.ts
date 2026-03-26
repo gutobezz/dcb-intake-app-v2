@@ -5,6 +5,7 @@ import {
   type Proposal,
   type Allowance,
   type PaymentMilestone,
+  type AdditionalOwner,
   INITIAL_PROPOSAL,
 } from "@/lib/types";
 
@@ -25,6 +26,9 @@ type Action =
   | { type: "TOGGLE_PRIORITY"; priority: string }
   | { type: "TOGGLE_SALESPERSON"; name: string }
   | { type: "SET_NOTES_TAGS"; tags: string[] }
+  | { type: "ADD_ADDITIONAL_OWNER" }
+  | { type: "REMOVE_ADDITIONAL_OWNER"; index: number }
+  | { type: "UPDATE_ADDITIONAL_OWNER"; index: number; field: keyof AdditionalOwner; value: string }
   | { type: "LOAD_PROPOSAL"; data: Partial<Proposal> }
   | { type: "RESET" };
 
@@ -149,6 +153,27 @@ function proposalReducer(state: Proposal, action: Action): Proposal {
     case "SET_NOTES_TAGS":
       return { ...state, notesTags: action.tags };
 
+    case "ADD_ADDITIONAL_OWNER":
+      return {
+        ...state,
+        additionalOwners: [
+          ...state.additionalOwners,
+          { firstName: "", lastName: "", email: "", phone: "", relationship: "" },
+        ],
+      };
+
+    case "REMOVE_ADDITIONAL_OWNER":
+      return {
+        ...state,
+        additionalOwners: state.additionalOwners.filter((_, i) => i !== action.index),
+      };
+
+    case "UPDATE_ADDITIONAL_OWNER": {
+      const owners = [...state.additionalOwners];
+      owners[action.index] = { ...owners[action.index], [action.field]: action.value };
+      return { ...state, additionalOwners: owners };
+    }
+
     case "LOAD_PROPOSAL":
       return { ...INITIAL_PROPOSAL, ...action.data };
 
@@ -201,6 +226,22 @@ export function useProposalForm(initialData?: Partial<Proposal>) {
     []
   );
 
+  const addAdditionalOwner = useCallback(
+    () => dispatch({ type: "ADD_ADDITIONAL_OWNER" }),
+    []
+  );
+
+  const removeAdditionalOwner = useCallback(
+    (index: number) => dispatch({ type: "REMOVE_ADDITIONAL_OWNER", index }),
+    []
+  );
+
+  const updateAdditionalOwner = useCallback(
+    (index: number, field: keyof AdditionalOwner, value: string) =>
+      dispatch({ type: "UPDATE_ADDITIONAL_OWNER", index, field, value }),
+    []
+  );
+
   return {
     state,
     dispatch,
@@ -210,6 +251,9 @@ export function useProposalForm(initialData?: Partial<Proposal>) {
     toggleProjectType,
     togglePriority,
     toggleSalesperson,
+    addAdditionalOwner,
+    removeAdditionalOwner,
+    updateAdditionalOwner,
   };
 }
 

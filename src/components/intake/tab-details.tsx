@@ -129,6 +129,15 @@ export function TabDetails({ form }: TabDetailsProps) {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="downPayment">Down Payment</Label>
+              <Input
+                id="downPayment"
+                placeholder="e.g. 1,000"
+                value={state.downPayment}
+                onChange={(e) => setField("downPayment", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="budgetRange">
                 Budget Range{" "}
                 <Badge variant="secondary" className="ml-1 text-[10px]">
@@ -153,7 +162,7 @@ export function TabDetails({ form }: TabDetailsProps) {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <Label>
                 <Clock className="mr-1 inline size-3.5" />
@@ -185,6 +194,30 @@ export function TabDetails({ form }: TabDetailsProps) {
                 type="date"
                 value={state.desiredStartDate}
                 onChange={(e) => setField("desiredStartDate", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="startDate">
+                <Calendar className="mr-1 inline size-3.5" />
+                Start Date
+              </Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={state.startDate}
+                onChange={(e) => setField("startDate", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="completionDate">
+                <Calendar className="mr-1 inline size-3.5" />
+                Completion Date
+              </Label>
+              <Input
+                id="completionDate"
+                type="date"
+                value={state.completionDate}
+                onChange={(e) => setField("completionDate", e.target.value)}
               />
             </div>
             <div className="space-y-2">

@@ -164,7 +164,7 @@ export function FloorPlanUploader({ form }: FloorPlanUploaderProps) {
                   Drag and drop floor plans here, or click to upload
                 </p>
                 <p className="text-xs text-muted-foreground/60">
-                  JPEG, PNG, GIF, or WebP -- AI will analyze the plan
+                  JPEG, PNG, GIF, WebP, or PDF — AI will analyze the plan
                 </p>
               </>
             )}
@@ -174,7 +174,7 @@ export function FloorPlanUploader({ form }: FloorPlanUploaderProps) {
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp"
+          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
           className="hidden"
           onChange={onInputChange}
         />

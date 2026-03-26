@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     // Build a context object with the relevant proposal fields
     const proposalContext = {
-      client_name: `${dbProposal.client_first_name} ${dbProposal.client_last_name}`,
+      client_name: `${dbProposal.first_name} ${dbProposal.last_name}`,
       address: dbProposal.address,
       project_price: dbProposal.project_price,
       project_types: dbProposal.project_types,

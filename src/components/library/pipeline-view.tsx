@@ -74,7 +74,7 @@ export function PipelineView({ proposals }: PipelineViewProps) {
       const q = searchQuery.toLowerCase();
       result = result.filter((p) => {
         const name =
-          `${p.client_first_name} ${p.client_last_name}`.toLowerCase();
+          `${p.first_name} ${p.last_name}`.toLowerCase();
         const address = (p.address ?? "").toLowerCase();
         const price = (p.project_price ?? "").toLowerCase();
         return name.includes(q) || address.includes(q) || price.includes(q);

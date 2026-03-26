@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,24 +14,35 @@ import { TabDetails } from "./tab-details";
 import { TabReview } from "./tab-review";
 import { TabLibrary } from "./tab-library";
 import { TabChangeOrder } from "./tab-change-order";
+import { createProposal, updateProposal } from "@/lib/actions/proposals";
+import { proposalToDbInput, proposalToDbUpdate } from "@/lib/proposal-helpers";
 import type { Proposal } from "@/lib/types";
+import { toast } from "sonner";
 import {
   ChevronLeft,
   ChevronRight,
   Loader2,
   Check,
+  UserRound,
+  MapPin,
+  Layers,
+  SlidersHorizontal,
+  ClipboardCheck,
+  BookMarked,
+  GitPullRequestArrow,
+  type LucideIcon,
 } from "lucide-react";
 
 const TAB_IDS = ["client", "property", "scope", "details", "review", "library", "change-order"] as const;
 
-const TAB_CONFIG = [
-  { id: "client" as const, label: "Client", emoji: "\u{1F464}" },
-  { id: "property" as const, label: "Property", emoji: "\u{1F4CD}" },
-  { id: "scope" as const, label: "Scope", emoji: "\u{1F4E6}" },
-  { id: "details" as const, label: "Details", emoji: "\u{1F4DD}" },
-  { id: "review" as const, label: "Review", emoji: "\u2705" },
-  { id: "library" as const, label: "Library", emoji: "\u{1F4DA}" },
-  { id: "change-order" as const, label: "Change Order", emoji: "\u{1F4CB}" },
+const TAB_CONFIG: { id: typeof TAB_IDS[number]; label: string; icon: LucideIcon }[] = [
+  { id: "client",       label: "Client",       icon: UserRound },
+  { id: "property",     label: "Property",     icon: MapPin },
+  { id: "scope",        label: "Scope",        icon: Layers },
+  { id: "details",      label: "Details",      icon: SlidersHorizontal },
+  { id: "review",       label: "Review",       icon: ClipboardCheck },
+  { id: "library",      label: "Library",      icon: BookMarked },
+  { id: "change-order", label: "Change Order", icon: GitPullRequestArrow },
 ];
 
 interface IntakeFormProps {
@@ -39,9 +51,40 @@ interface IntakeFormProps {
 }
 
 export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
+  const router = useRouter();
   const form = useProposalForm(initialData);
-  const { isSaving, lastSaved } = useAutosave(form.state, proposalId);
+  const savedIdRef = useRef<string | undefined>(proposalId);
+  const [savingToLibrary, setSavingToLibrary] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+
+  const handleSave = useCallback(async (data: Proposal) => {
+    if (savedIdRef.current) {
+      const result = await updateProposal(savedIdRef.current, proposalToDbUpdate(data));
+      if (result.error) throw new Error(result.error);
+    } else {
+      const result = await createProposal(proposalToDbInput(data));
+      if (result.error) throw new Error(result.error);
+      if (result.data) {
+        savedIdRef.current = result.data.id;
+        window.history.replaceState(null, "", `/intake?id=${result.data.id}`);
+      }
+    }
+  }, []);
+
+  const { isSaving, lastSaved, saveNow } = useAutosave(form.state, handleSave);
+
+  const handleSaveToLibrary = useCallback(async () => {
+    setSavingToLibrary(true);
+    try {
+      await saveNow(form.state);
+      toast.success("Saved to Library");
+      router.push("/library");
+    } catch {
+      toast.error("Failed to save");
+    } finally {
+      setSavingToLibrary(false);
+    }
+  }, [saveNow, form.state, router]);
 
   // Count selected scope items
   const scopeCount = useMemo(() => {
@@ -52,12 +95,17 @@ export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
   const isFirst = activeTab === 0;
   const isLast = activeTab === TAB_IDS.length - 1;
 
+  function navigateTo(index: number) {
+    saveNow(form.state);
+    setActiveTab(index);
+  }
+
   function goNext() {
-    if (!isLast) setActiveTab((t) => t + 1);
+    if (!isLast) navigateTo(activeTab + 1);
   }
 
   function goPrev() {
-    if (!isFirst) setActiveTab((t) => t - 1);
+    if (!isFirst) navigateTo(activeTab - 1);
   }
 
   return (
@@ -91,38 +139,41 @@ export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        onValueChange={(val) => setActiveTab(val as number)}
+        onValueChange={(val) => navigateTo(val as number)}
       >
         <TabsList variant="line" className="w-full justify-start gap-0 overflow-x-auto">
-          {TAB_CONFIG.map((tab, index) => (
-            <TabsTrigger
-              key={tab.id}
-              value={index}
-              className="gap-1 px-2.5 text-xs sm:gap-1.5 sm:px-3 sm:text-sm"
-            >
-              <span className="text-base leading-none">{tab.emoji}</span>
-              <span className="hidden sm:inline">
-                {tab.label}
+          {TAB_CONFIG.map((tab, index) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.id}
+                value={index}
+                className="gap-1.5 px-2.5 text-xs sm:px-3 sm:text-sm"
+              >
+                <Icon className="size-3.5 shrink-0" />
+                <span className="hidden sm:inline">
+                  {tab.label}
+                  {tab.id === "scope" && scopeCount > 0 && (
+                    <Badge
+                      variant="secondary"
+                      className="ml-1.5 h-4 min-w-[18px] bg-primary/20 px-1 text-[10px] text-primary"
+                    >
+                      {scopeCount}
+                    </Badge>
+                  )}
+                </span>
+                {/* Mobile: show scope count after icon */}
                 {tab.id === "scope" && scopeCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className="ml-1.5 h-4 min-w-[18px] bg-amber-500/20 px-1 text-[10px] text-amber-400"
+                    className="h-4 min-w-[18px] bg-primary/20 px-1 text-[10px] text-primary sm:hidden"
                   >
                     {scopeCount}
                   </Badge>
                 )}
-              </span>
-              {/* Mobile: show scope count after emoji */}
-              {tab.id === "scope" && scopeCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="h-4 min-w-[18px] bg-amber-500/20 px-1 text-[10px] text-amber-400 sm:hidden"
-                >
-                  {scopeCount}
-                </Badge>
-              )}
-            </TabsTrigger>
-          ))}
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
 
         <div className="mt-6">
@@ -139,7 +190,7 @@ export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
             <TabDetails form={form} />
           </TabsContent>
           <TabsContent value={4}>
-            <TabReview form={form} />
+            <TabReview form={form} onSaveToLibrary={handleSaveToLibrary} savingToLibrary={savingToLibrary} />
           </TabsContent>
           <TabsContent value={5}>
             <TabLibrary />
@@ -167,7 +218,7 @@ export function IntakeForm({ initialData, proposalId }: IntakeFormProps) {
             <button
               key={index}
               type="button"
-              onClick={() => setActiveTab(index)}
+              onClick={() => navigateTo(index)}
               className={`size-2 rounded-full transition-colors ${
                 index === activeTab
                   ? "bg-primary"

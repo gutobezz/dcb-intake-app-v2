@@ -10,7 +10,7 @@ interface AutosaveState {
 
 export function useAutosave(
   formState: Proposal,
-  proposalId?: string,
+  onSave: (data: Proposal) => Promise<void>,
   debounceMs = 2000
 ) {
   const [autosaveState, setAutosaveState] = useState<AutosaveState>({
@@ -20,46 +20,51 @@ export function useAutosave(
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
+  const isSavingRef = useRef(false);
 
   const save = useCallback(
     async (data: Proposal) => {
+      if (isSavingRef.current) return;
+      isSavingRef.current = true;
       setAutosaveState((prev) => ({ ...prev, isSaving: true }));
 
-      // For now, log to console. Server Action integration comes later.
-      console.log(
-        `[Autosave] ${proposalId ?? "new"} — saving at ${new Date().toISOString()}`,
-        data
-      );
-
-      // Simulate a short delay so the indicator is visible
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      setAutosaveState({ isSaving: false, lastSaved: new Date() });
+      try {
+        await onSave(data);
+        setAutosaveState({ isSaving: false, lastSaved: new Date() });
+      } catch (err) {
+        console.error("[Autosave] Failed:", err);
+        setAutosaveState((prev) => ({ ...prev, isSaving: false }));
+      } finally {
+        isSavingRef.current = false;
+      }
     },
-    [proposalId]
+    [onSave]
+  );
+
+  const saveNow = useCallback(
+    (data: Proposal) => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      return save(data);
+    },
+    [save]
   );
 
   useEffect(() => {
-    // Skip autosave on initial mount
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(() => {
       save(formState);
     }, debounceMs);
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [formState, debounceMs, save]);
 
-  return autosaveState;
+  return { ...autosaveState, saveNow };
 }

@@ -71,22 +71,21 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex h-16 items-center justify-between px-4">
-        <Link href="/intake" className="flex items-center gap-2">
-          <div className="flex flex-col items-center leading-none">
-            <span
-              className={cn(
-                "font-bold tracking-widest text-white transition-all",
-                collapsed ? "text-lg" : "text-xl"
-              )}
-            >
-              D&C
-            </span>
-            {!collapsed && (
-              <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-dcb-gold">
+        <Link href="/intake" className="flex items-center gap-2.5">
+          {/* Gold square logo mark — matches design system */}
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-dcb-gold text-sm font-bold text-white">
+            DC
+          </div>
+          {!collapsed && (
+            <div className="flex flex-col leading-none">
+              <span className="text-sm font-bold tracking-widest text-white">
+                D&C
+              </span>
+              <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-dcb-gold">
                 Builders
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </Link>
         <Button
           variant="ghost"

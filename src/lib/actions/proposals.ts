@@ -162,7 +162,7 @@ export async function listProposals(filters?: ListProposalsFilters) {
   if (filters?.search) {
     const term = `%${filters.search}%`;
     query = query.or(
-      `client_first_name.ilike.${term},client_last_name.ilike.${term},address.ilike.${term},project_price.ilike.${term}`
+      `first_name.ilike.${term},last_name.ilike.${term},address.ilike.${term},project_price.ilike.${term}`
     );
   }
 

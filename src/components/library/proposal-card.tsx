@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { LeadScoreBadge } from "@/components/shared/lead-score-badge";
 import {
@@ -54,8 +55,14 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const clientName =
-    `${proposal.client_first_name} ${proposal.client_last_name}`.trim() ||
+    `${proposal.first_name} ${proposal.last_name}`.trim() ||
     "Unnamed Client";
+
+  const isIncomplete =
+    !proposal.first_name ||
+    !proposal.address ||
+    !proposal.project_types?.length ||
+    !proposal.project_price;
 
   const price = proposal.project_price
     ? formatPrice(proposal.project_price)
@@ -120,6 +127,11 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
                   {clientName}
                 </span>
                 <StatusBadge status={proposal.status} />
+                {isIncomplete && (
+                  <Badge className="border-orange-500/30 bg-orange-500/15 text-orange-400 hover:bg-orange-500/15">
+                    Incomplete
+                  </Badge>
+                )}
                 {proposal.lead_score && (
                   <LeadScoreBadge score={proposal.lead_score} />
                 )}

@@ -27,6 +27,8 @@ import { clientName as buildClientName } from "@/lib/proposal-helpers";
 
 interface TabReviewProps {
   form: ProposalFormReturn;
+  onSaveToLibrary: () => Promise<void>;
+  savingToLibrary: boolean;
 }
 
 function formatPrice(raw: string): string {
@@ -36,7 +38,7 @@ function formatPrice(raw: string): string {
   return `$${num.toLocaleString("en-US")}`;
 }
 
-export function TabReview({ form }: TabReviewProps) {
+export function TabReview({ form, onSaveToLibrary, savingToLibrary }: TabReviewProps) {
   const { state } = form;
   const name = [state.firstName, state.lastName].filter(Boolean).join(" ");
   const canGenerate = name.length > 0 && state.projectPrice.length > 0;
@@ -423,9 +425,19 @@ export function TabReview({ form }: TabReviewProps) {
           )}
           {downloading ? "Generating..." : "Generate Proposal"}
         </Button>
-        <Button variant="outline" size="lg" className="flex-1 gap-2">
-          <BookMarked className="size-4" />
-          Save to Library
+        <Button
+          variant="outline"
+          size="lg"
+          className="flex-1 gap-2"
+          disabled={savingToLibrary}
+          onClick={onSaveToLibrary}
+        >
+          {savingToLibrary ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <BookMarked className="size-4" />
+          )}
+          {savingToLibrary ? "Saving..." : "Save to Library"}
         </Button>
         <Button variant="outline" size="lg" className="flex-1 gap-2">
           <Send className="size-4" />

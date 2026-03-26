@@ -47,21 +47,21 @@ export async function syncProposalToPipedrive(
     // 2. Find or create person in Pipedrive
     let personId: number | undefined;
 
-    if (p.client_email) {
-      const existing = await findPersonByEmail(p.client_email);
+    if (p.email) {
+      const existing = await findPersonByEmail(p.email);
 
       if (existing) {
         personId = existing.id;
       } else {
         const fullName =
-          [p.client_first_name, p.client_last_name]
+          [p.first_name, p.last_name]
             .filter(Boolean)
             .join(" ") || "Unknown Client";
 
         const person = await createPerson({
           name: fullName,
-          email: p.client_email ? [p.client_email] : undefined,
-          phone: p.client_phone ? [p.client_phone] : undefined,
+          email: p.email ? [p.email] : undefined,
+          phone: p.phone ? [p.phone] : undefined,
         });
         personId = person.id;
       }
@@ -69,7 +69,7 @@ export async function syncProposalToPipedrive(
 
     // 3. Build deal title and value
     const clientName =
-      [p.client_first_name, p.client_last_name]
+      [p.first_name, p.last_name]
         .filter(Boolean)
         .join(" ") || "Unknown Client";
 

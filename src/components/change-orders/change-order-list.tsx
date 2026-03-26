@@ -53,7 +53,7 @@ export function ChangeOrderList({
   function getClientName(proposalId: string): string {
     const p = proposalMap.get(proposalId);
     if (!p) return "Unknown";
-    return `${p.client_first_name} ${p.client_last_name}`.trim() || "Unnamed";
+    return `${p.first_name} ${p.last_name}`.trim() || "Unnamed";
   }
 
   function getAddress(proposalId: string): string {

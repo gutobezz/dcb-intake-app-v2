@@ -14,8 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronDown, ChevronRight, Hammer, ClipboardList } from "lucide-react";
+import { ChevronDown, ChevronRight, Hammer, ClipboardList, Wrench, Grid3x3 } from "lucide-react";
 import { PROJECT_TYPES, FINISH_OPTIONS } from "@/lib/types";
+import { ADDITIONAL_WORK_TYPES } from "@/lib/constants/additional-work";
+import { SCOPE_CATEGORIES } from "@/lib/constants/scope-categories";
 import type { ProposalFormReturn } from "@/hooks/use-proposal-form";
 
 interface TabScopeProps {
@@ -24,9 +26,10 @@ interface TabScopeProps {
 
 export function TabScope({ form }: TabScopeProps) {
   const { state, toggleProjectType, toggleScopeItem, setField } = form;
-  const [expandedDescs, setExpandedDescs] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [expandedDescs, setExpandedDescs] = useState<Record<string, boolean>>({});
+  const [showAdditionalWork, setShowAdditionalWork] = useState(false);
+  const [showScopeCategories, setShowScopeCategories] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
   const toggleDesc = useCallback((itemKey: string) => {
     setExpandedDescs((prev) => ({ ...prev, [itemKey]: !prev[itemKey] }));
@@ -301,6 +304,146 @@ export function TabScope({ form }: TabScopeProps) {
           </div>
         </div>
       )}
+
+      {/* Additional / Standalone Work Types */}
+      <Card>
+        <CardHeader
+          className="cursor-pointer select-none"
+          onClick={() => setShowAdditionalWork((v) => !v)}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Wrench className="size-4" />
+              Additional / Standalone Work
+              {ADDITIONAL_WORK_TYPES.some((t) => state.projectTypes.includes(t.id)) && (
+                <Badge variant="secondary" className="ml-1 text-[10px] bg-amber-500/20 px-1 text-amber-400">
+                  {ADDITIONAL_WORK_TYPES.filter((t) => state.projectTypes.includes(t.id)).length} selected
+                </Badge>
+              )}
+            </span>
+            {showAdditionalWork ? (
+              <ChevronDown className="size-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="size-4 text-muted-foreground" />
+            )}
+          </CardTitle>
+        </CardHeader>
+        {showAdditionalWork && (
+          <CardContent>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {ADDITIONAL_WORK_TYPES.map((workType) => {
+                const isSelected = state.projectTypes.includes(workType.id);
+                return (
+                  <label
+                    key={workType.id}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
+                      isSelected
+                        ? "border-primary/50 bg-primary/5"
+                        : "border-border hover:border-muted-foreground/30"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleProjectType(workType.id)}
+                    />
+                    <span className="text-sm">{workType.icon} {workType.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Scope Items by Trade (SCOPE_CATEGORIES) */}
+      <Card>
+        <CardHeader
+          className="cursor-pointer select-none"
+          onClick={() => setShowScopeCategories((v) => !v)}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Grid3x3 className="size-4" />
+              Scope Items by Trade
+              {Object.keys(state.scopeItems).some((k) => k.startsWith("_sc_") && state.scopeItems[k]) && (
+                <Badge variant="secondary" className="ml-1 text-[10px] bg-blue-500/20 px-1 text-blue-400">
+                  {Object.keys(state.scopeItems).filter((k) => k.startsWith("_sc_") && state.scopeItems[k]).length} selected
+                </Badge>
+              )}
+            </span>
+            {showScopeCategories ? (
+              <ChevronDown className="size-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="size-4 text-muted-foreground" />
+            )}
+          </CardTitle>
+        </CardHeader>
+        {showScopeCategories && (
+          <CardContent>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Select individual trade items to include in the scope. These supplement the project-type scope items above.
+            </p>
+            <div className="space-y-2">
+              {Object.entries(SCOPE_CATEGORIES).map(([catId, cat]) => {
+                const isExpanded = expandedCategories[catId] ?? false;
+                const selectedCount = cat.items.filter(
+                  (_, i) => state.scopeItems[`_sc_${catId}::${i}`]
+                ).length;
+                return (
+                  <div key={catId} className="rounded-lg border border-border/50">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedCategories((prev) => ({ ...prev, [catId]: !isExpanded }))
+                      }
+                      className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <span>{cat.icon}</span>
+                        {cat.label}
+                        {selectedCount > 0 && (
+                          <Badge variant="secondary" className="text-[10px] bg-blue-500/20 px-1 text-blue-400">
+                            {selectedCount}
+                          </Badge>
+                        )}
+                      </span>
+                      {isExpanded ? (
+                        <ChevronDown className="size-3.5 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="size-3.5 text-muted-foreground" />
+                      )}
+                    </button>
+                    {isExpanded && (
+                      <div className="border-t border-border/30 px-4 py-3">
+                        <div className="space-y-1.5">
+                          {cat.items.map((item, i) => {
+                            const scopeKey = `_sc_${catId}::${i}`;
+                            const isChecked = state.scopeItems[scopeKey] ?? false;
+                            return (
+                              <label
+                                key={i}
+                                className={`flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 transition-colors ${
+                                  isChecked ? "bg-primary/5" : "hover:bg-muted/30"
+                                }`}
+                              >
+                                <Checkbox
+                                  checked={isChecked}
+                                  onCheckedChange={() => toggleScopeItem(scopeKey)}
+                                />
+                                <span className="text-sm">{item}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 }

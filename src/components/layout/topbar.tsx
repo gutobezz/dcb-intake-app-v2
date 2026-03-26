@@ -57,7 +57,7 @@ export function Topbar() {
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-sm md:px-6">
+    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] md:px-6">
       <div className="flex items-center gap-3">
         {/* Mobile menu */}
         <Sheet>
@@ -74,14 +74,13 @@ export function Topbar() {
           </SheetTrigger>
           <SheetContent side="left" className="w-64 bg-sidebar p-0">
             <SheetHeader className="border-b border-sidebar-border p-4">
-              <SheetTitle className="flex items-center gap-2">
-                <div className="flex flex-col items-center leading-none">
-                  <span className="text-xl font-bold tracking-widest text-white">
-                    D&C
-                  </span>
-                  <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-dcb-gold">
-                    Builders
-                  </span>
+              <SheetTitle className="flex items-center gap-2.5">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-dcb-gold text-sm font-bold text-white">
+                  DC
+                </div>
+                <div className="flex flex-col leading-none">
+                  <span className="text-sm font-bold tracking-widest text-white">D&C</span>
+                  <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-dcb-gold">Builders</span>
                 </div>
               </SheetTitle>
             </SheetHeader>

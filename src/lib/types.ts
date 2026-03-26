@@ -56,6 +56,14 @@ export type Advisor =
   | "Claire"
   | "Tanzin";
 
+export interface AdditionalOwner {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  relationship: string;
+}
+
 export interface Allowance {
   description: string;
   amount: string;
@@ -84,6 +92,7 @@ export interface Proposal {
   phone: string;
   referralSource: ReferralSource | "";
   advisor: Advisor | "";
+  additionalOwners: AdditionalOwner[];
 
   // Property
   address: string;
@@ -95,6 +104,11 @@ export interface Proposal {
   stories: string;
   hoa: boolean;
   hasPlans: boolean;
+  rti: boolean;
+  lotSize: string;
+  estimatedValue: string;
+  lastSoldPrice: string;
+  conditionNotes: string;
 
   // Scope
   projectTypes: string[];
@@ -106,9 +120,12 @@ export interface Proposal {
 
   // Details
   projectPrice: string;
+  downPayment: string;
   budgetRange: string;
   timeline: string;
   desiredStartDate: string;
+  startDate: string;
+  completionDate: string;
   financing: FinancingType | "";
   allowances: Allowance[];
   paymentSchedule: PaymentMilestone[];
@@ -135,6 +152,7 @@ export const INITIAL_PROPOSAL: Proposal = {
   phone: "",
   referralSource: "",
   advisor: "",
+  additionalOwners: [],
 
   address: "",
   propertyType: "",
@@ -145,6 +163,11 @@ export const INITIAL_PROPOSAL: Proposal = {
   stories: "",
   hoa: false,
   hasPlans: false,
+  rti: false,
+  lotSize: "",
+  estimatedValue: "",
+  lastSoldPrice: "",
+  conditionNotes: "",
 
   projectTypes: [],
   scopeItems: {},
@@ -154,9 +177,12 @@ export const INITIAL_PROPOSAL: Proposal = {
   scopeCounts: {},
 
   projectPrice: "",
+  downPayment: "",
   budgetRange: "",
   timeline: "",
   desiredStartDate: "",
+  startDate: "",
+  completionDate: "",
   financing: "",
   allowances: [],
   paymentSchedule: [
@@ -659,10 +685,10 @@ export interface DbProposal {
   status: ProposalStatus;
 
   // Client
-  client_first_name: string;
-  client_last_name: string;
-  client_email: string;
-  client_phone: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
   referral_source: string;
 
   // Property
@@ -746,7 +772,7 @@ export interface ChangeOrder {
   proposal_id: string;
   client_name: string;
   address: string;
-  type: "increased" | "decreased";
+  type: "increase" | "decrease";
   line_items: ChangeOrderLineItem[];
   scope_description: string;
   timeline_extension_days: number;
@@ -790,10 +816,10 @@ export interface RevisionSuggestion {
 }
 
 export interface PdfImportResult {
-  client_first_name: string;
-  client_last_name: string;
-  client_email: string;
-  client_phone: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
   address: string;
   project_price: string;
   project_types: string[];

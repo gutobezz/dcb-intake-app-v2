@@ -4,53 +4,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { INITIAL_PROPOSAL, type Proposal, type DbProposal } from "@/lib/types";
 import { ProposalDocument } from "@/lib/pdf/proposal-document";
+import { dbToProposal } from "@/lib/proposal-helpers";
 import { createElement } from "react";
-
-/** Convert DB snake_case proposal to client-side camelCase Proposal */
-function dbToProposal(db: DbProposal): Proposal {
-  return {
-    id: db.id,
-    status: db.status,
-    firstName: db.client_first_name,
-    lastName: db.client_last_name,
-    email: db.client_email,
-    phone: db.client_phone,
-    referralSource: db.referral_source as Proposal["referralSource"],
-    advisor: "" as Proposal["advisor"],
-    address: db.address,
-    propertyType: db.property_type as Proposal["propertyType"],
-    yearBuilt: db.year_built != null ? String(db.year_built) : "",
-    sqft: db.sqft != null ? String(db.sqft) : "",
-    bedrooms: db.bedrooms != null ? String(db.bedrooms) : "",
-    bathrooms: db.bathrooms != null ? String(db.bathrooms) : "",
-    stories: db.stories,
-    hoa: db.hoa,
-    hasPlans: db.has_plans,
-    projectTypes: db.project_types,
-    scopeItems: db.scope_items,
-    scopeNotes: db.scope_notes,
-    descOverrides: db.desc_overrides,
-    finishSelections: db.finish_selections,
-    scopeCounts: db.scope_counts,
-    projectPrice: db.project_price,
-    budgetRange: db.budget_range,
-    timeline: "",
-    desiredStartDate: "",
-    financing: db.financing as Proposal["financing"],
-    allowances: db.allowances,
-    paymentSchedule: db.payment_schedule,
-    salespersons: db.salespersons,
-    leadScore: db.lead_score as Proposal["leadScore"],
-    followUp: db.follow_up,
-    followUpDays: String(db.follow_up_days),
-    priorities: db.priorities,
-    additionalNotes: db.additional_notes,
-    notesTags: db.notes_tags,
-    designPageSections: db.design_page_sections,
-    generalNotes: db.general_notes,
-    showToc: db.show_toc,
-  };
-}
 
 export async function POST(request: Request) {
   try {
